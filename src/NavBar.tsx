@@ -1,13 +1,13 @@
 import { NavLink, Link } from "react-router-dom";
-import { generatePath } from "react-router";
+//import { generatePath } from "react-router";
 import "./NavBar.css";
 import { logout } from "./reducers/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { Note } from "./models/notes";
+//import { Note } from "./models/notes";
 
 export function NavBar() {
   const dispatch = useDispatch();
-  const { auth, notes } = useSelector((state: any) => state);
+  const { auth /*, notes*/ } = useSelector((state: any) => state);
 
   return (
     <nav className="nav-bar">
@@ -16,11 +16,11 @@ export function NavBar() {
         New
       </NavLink>
       <NavLink to="/notes">Notes</NavLink>
-      {notes.notes.map((n: Note) => (
+      {/*notes.notes.map((n: Note) => (
         <NavLink className="note" to={generatePath("/n/:id", { id: n.id })}>
           {n.title}
         </NavLink>
-      ))}
+      ))*/}
       <div className="filler"></div>
       {auth.tokens ? (
         <NavLink onClick={() => dispatch(logout())} to="#">

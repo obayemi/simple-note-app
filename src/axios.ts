@@ -1,16 +1,14 @@
 import axios from "axios";
-import { Store } from "redux";
 import { refreshToken, logout } from "./reducers/auth";
 
-const API_URL = "http://127.0.0.1:8001/v1";
-
 export function setupAxios(store: any) {
+  console.log(process.env);
+  const API_URL = `${process.env.REACT_APP_API_URL}/v1`;
+  console.log("API_URL", API_URL);
+
   axios.defaults.headers.post["Content-Type"] = "application/json";
   axios.interceptors.response.use(
-    (response) => {
-      console.log("intercept response", response);
-      return response;
-    },
+    (response) => response,
     async (error) => {
       const originalRequest = error.config;
       if (
@@ -20,12 +18,14 @@ export function setupAxios(store: any) {
         store.dispatch(logout());
         return Promise.reject(error);
       }
-      if (originalRequest._retry) {
-        return Promise.reject(error);
+      if (error.response.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        const tokens = await store.dispatch(refreshToken());
+        console.log(tokens.payload.acess);
+        originalRequest.headers.Authorization = `JWT ${tokens.payload.access}`;
+        return await axios(originalRequest);
       }
-      originalRequest._retry = true;
-      await store.dispatch(refreshToken());
-      return await axios(originalRequest);
+      return Promise.reject(error);
     }
   );
   axios.defaults.baseURL = API_URL;

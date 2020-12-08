@@ -52,11 +52,14 @@ export const refreshToken = createAsyncThunk(
       throw Error("attempt to refresh without token");
     }
     const token = await refreshTokenRequest(tokens.refresh);
+    console.log("setting new common auth token", token);
     axios.defaults.headers.common["Authorization"] = `JWT ${token}`;
-    return {
+    const newTokens = {
       access: token,
       refresh: tokens.refresh,
     };
+    localStorage.setItem("tokensPair", JSON.stringify(newTokens));
+    return newTokens;
   }
 );
 
